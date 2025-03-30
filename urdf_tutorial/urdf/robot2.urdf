@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<robot name="practice_assembly">
+  <!-- 더미 루트 링크 추가 -->
+  <link name="dummy_root">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.001"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+  
+  <!-- dummy_root와 base_link를 연결하는 고정 조인트 -->
+  <joint name="dummy_to_base" type="fixed">
+    <parent link="dummy_root"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  
+  <!-- 기존 base_link -->
+  <link name="base_link">
+    <inertial>
+      <origin xyz="6.8412E-05 -8.6736E-19 -0.0025" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="5.5992E-07" ixy="1.0764E-22" ixz="-6.1219E-24"
+               iyy="1.7673E-06" iyz="4.7966E-24" izz="2.295E-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <!-- 왼쪽 바퀴 -->
+  <link name="left_wheel">
+    <inertial>
+      <origin xyz="0 -8.6736E-19 -0.0010743" rpy="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia ixx="1.948E-08" ixy="-1.2085E-24" ixz="-2.1178E-25"
+               iyy="1.948E-08" iyz="1.4498E-26" izz="3.821E-08"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <!-- 주의: 파일 경로에 오타가 있을 수 있으니 확인하세요 -->
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshesleft_wheel.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/left_wheel.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="LeftWheel" type="continuous">
+    <origin xyz="-0.0186393692591437 0.018 -0.0025" rpy="-1.5707963267949 0 0"/>
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+  
+  <!-- 오른쪽 바퀴 -->
+  <link name="right_wheel">
+    <inertial>
+      <origin xyz="0 -8.6736E-19 0.0010743" rpy="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia ixx="1.948E-08" ixy="1.6567E-24" ixz="5.833E-25"
+               iyy="1.948E-08" iyz="-2.3641E-25" izz="3.821E-08"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/right_wheel.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/right_wheel.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="RightWheel" type="continuous">
+    <origin xyz="-0.018639 -0.018 -0.0025" rpy="-1.5708 0 0"/>
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+  
+  <!-- 스티어링 링크 -->
+  <link name="steering">
+    <inertial>
+      <origin xyz="0 8.6736E-19 -0.0055474" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="1.132E-09" ixy="5.9431E-11" ixz="-1.3273E-25"
+               iyy="9.4731E-10" iyz="1.2576E-25" izz="3.3938E-10"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/steering.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/steering.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="Steering" type="continuous">
+    <origin xyz="0.02112 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="steering"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+  </joint>
+  
+  <!-- 스티어링 휠 링크 -->
+  <link name="steering_wheel">
+    <inertial>
+      <origin xyz="0 -2.1684E-19 0" rpy="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia ixx="4.8783E-10" ixy="-7.3853E-26" ixz="-6.4921E-11"
+               iyy="4.6874E-10" iyz="1.0176E-25" izz="6.8956E-10"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/steering_wheel.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="/home/cv24/ros2_ws/src/my_robot_description/meshes/steering_wheel.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="steeringWheel" type="continuous">
+    <origin xyz="0 0 -0.01" rpy="-1.5708 0 0"/>
+    <parent link="steering"/>
+    <child link="steering_wheel"/>
+    <axis xyz="-0.28207 0 0.95939"/>
+    <limit effort="10" velocity="10"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+</robot>
