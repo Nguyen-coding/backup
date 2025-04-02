@@ -14,10 +14,15 @@ def generate_launch_description():
 
     ydlidar_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('ydlidar_ros2_driver'), 'launch', 'ydlidar_launch.py')
+            os.path.join(get_package_share_directory('ydlidar_ros2_driver'), 'launch', 'ydlidar.py')
         )
     )
 
+    realsense2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('realsense2_camera'),'launch','rs_launch.py')
+        )
+    )
     imu_node = ExecuteProcess(
         cmd=['ros2', 'run', 'imu_pkg', 'imu_publisher'],
         output='screen'
@@ -26,5 +31,6 @@ def generate_launch_description():
     return LaunchDescription([
         urdf_tutorial_launch,
         ydlidar_launch,
-        imu_node
+        imu_node,
+        realsense2_launch
     ])
