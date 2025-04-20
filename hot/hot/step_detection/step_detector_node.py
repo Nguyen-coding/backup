@@ -18,14 +18,14 @@ class StepDetector(Node):
 
         self.depth_sub = self.create_subscription(
             Image,
-            '/camera/camera/aligned_depth_to_color/image_raw',
+            '/camera/aligned_depth_to_color/image_raw',
             self.depth_callback,
             10
         )
 
         self.rgb_sub = self.create_subscription(
             Image,
-            '/camera/camera/color/image_raw',
+            '/camera/color/image_raw',
             self.rgb_callback,
             10
         )

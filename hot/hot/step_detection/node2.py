@@ -13,24 +13,21 @@ from cv_bridge import CvBridge
 class DepthStepDetector(Node):
     def __init__(self):
         super().__init__('depth_step_detector')
-
         self.bridge = CvBridge()
 
-        # Depth + RGB 이미지 구독
+        # ✅ 알라인드 Depth + RGB 구독
         self.depth_sub = self.create_subscription(
             Image,
-            '/camera/camera/aligned_depth_to_color/image_raw',
+            '/camera/camera/aligned_depth_to_color/image_raw',  # aligned depth
             self.depth_callback,
             10
         )
-
         self.rgb_sub = self.create_subscription(
             Image,
             '/camera/camera/color/image_raw',
             self.rgb_callback,
             10
         )
-
         self.alert_pub = self.create_publisher(Bool, '/depth_step_detected', 10)
 
         self.latest_depth = None
@@ -57,41 +54,54 @@ class DepthStepDetector(Node):
         rgb_image = self.latest_rgb.copy()
 
         h, w = depth.shape
-        x_start, x_end = int(w * 0.4), int(w * 0.6)
-        y_start, y_end = int(h * 0.6), int(h * 0.9)
-        
-        self.get_logger().info(f"ROI size: {roi.shape}, valid pixels: {valid_roi.size}")
+        x_start, x_end = int(w * 0.3), int(w * 0.7)  # ROI 가로 범위
+        y_start, y_end = int(h * 0.2), int(h * 0.5)  # ✅ ROI를 위로 이동
 
         roi = depth[y_start:y_end, x_start:x_end]
         valid_roi = roi[(roi > 0.1) & (roi < 4.0)]
 
-        if valid_roi.size == 0:
-            self.get_logger().warn("⚠️ 유효한 depth ROI 없음")
-            step_detected = False
-        else:
+        self.get_logger().info(f"ROI size: {roi.shape}, valid pixels: {valid_roi.size}")
+        step_detected = False
+
+        if valid_roi.size >= 20:  # ✅ 최소 유효 픽셀 수 완화
             depth_min = np.min(valid_roi)
             depth_max = np.max(valid_roi)
             depth_diff = depth_max - depth_min
 
             self.get_logger().info(f"Depth range: {depth_min:.2f} ~ {depth_max:.2f} m")
-            step_detected = depth_diff > 0.05 # 얼마나 차이나면 감지하는지 5cm
+
+            # 단차 기준: 5cm 이상
+            step_detected = depth_diff > 0.05
+
+            cv2.putText(rgb_image,
+                f"min: {depth_min:.2f}, max: {depth_max:.2f}, diff: {depth_diff:.2f}",
+                (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        else:
+            self.get_logger().warn("⚠️ 유효한 depth 데이터 부족")
+            cv2.putText(rgb_image, "NO VALID DEPTH DATA", (30, 80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
         self.alert_pub.publish(Bool(data=step_detected))
 
-        # ✅ RGB 영상 위에 시각화
+        # RGB에 시각화
         color = (0, 0, 255) if step_detected else (0, 255, 0)
         cv2.rectangle(rgb_image, (x_start, y_start), (x_end, y_end), color, 2)
+        cv2.putText(rgb_image, "STEP DETECTED" if step_detected else "No Step",
+                    (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
 
-        text = "STEP DETECTED" if step_detected else "No Step"
-        cv2.putText(rgb_image, text, (30, 40), cv2.FONT_HERSHEY_SIMPLEX,
-                    1.0, color, 2)
+        # Raw Depth View 시각화
+        vis_depth = cv2.normalize(self.latest_depth, None, 0, 255, cv2.NORM_MINMAX)
+        vis_depth = np.uint8(vis_depth)
+        vis_depth = cv2.applyColorMap(vis_depth, cv2.COLORMAP_JET)
+        cv2.rectangle(vis_depth, (x_start, y_start), (x_end, y_end), (255, 255, 255), 2)
 
         cv2.imshow("RGB View + Depth-based Step Detection", rgb_image)
+        cv2.imshow("Raw Depth View", vis_depth)
+
         key = cv2.waitKey(1)
         if key == 27:
             self.get_logger().info("ESC 눌러 종료")
             rclpy.shutdown()
-
 
 def main(args=None):
     rclpy.init(args=args)
@@ -99,7 +109,6 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

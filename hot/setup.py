@@ -23,6 +23,14 @@ setup(
             'step_detector = hot.step_detection.step_detector_node:main',
             'node1 = hot.step_detection.node1:main',
             'node2 = hot.step_detection.node2:main',
+            'node3 = hot.step_detection.node3:main',
+            'node4 = hot.step_detection.node4:main',
+            'line = hot.step_detection.line:main',
+            'node5 = hot.step_detection.node5:main',
+            'node6 = hot.step_detection.node6:main',
+
+            'test = hot.step_detection.test:main',
+            'server = hot.server:main',
 
         ],
     },
