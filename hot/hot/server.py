@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import rclpy                         # ROS2 client library for Python
 from rclpy.node import Node          # ROS2 노드 클래스
 import socket                        # UDP 통신을 위한 소켓 모듈
@@ -94,3 +95,7 @@ def main(args=None):
     # 노드 종료 시, 노드를 안전하게 소멸시키고 ROS2 종료
     node.destroy_node()
     rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
